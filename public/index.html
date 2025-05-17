@@ -109,10 +109,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-      // Ganti URL ini sesuai alamat API kamu
       const API_URL = "http://3.86.149.73:3000/data";
 
-      // Format UNIX timestamp ke tanggal lokal
       function formatDate(ts) {
         return new Date(ts * 1000).toLocaleString();
       }
@@ -122,11 +120,14 @@
           const res = await fetch(API_URL);
           if (!res.ok) throw new Error("Gagal ambil data");
 
-          const data = await res.json();
+          let data = await res.json();
 
           if (!Array.isArray(data) || data.length === 0) return;
 
-          // Ambil data terbaru (index 0 diasumsikan terbaru)
+          // Urutkan berdasarkan sample_time secara descending (terbaru di atas)
+          data.sort((a, b) => b.sample_time - a.sample_time);
+
+          // Ambil data terbaru (sekarang sudah paling atas setelah sorting)
           const latest = data[0];
 
           // Update tampilan utama
@@ -144,17 +145,17 @@
 
           // Isi tabel log
           const tbody = document.getElementById("log-table");
-          tbody.innerHTML = ""; // clear dulu
+          tbody.innerHTML = "";
 
           data.forEach((item) => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-              <td>${formatDate(item.sample_time)}</td>
-              <td>${item.suhu}</td>
-              <td>${item.kelembaban}</td>
-              <td>${item.ph !== undefined ? item.ph : "-"}</td>
-              <td>${item.air !== undefined ? item.air + " cm" : "-"}</td>
-            `;
+          <td>${formatDate(item.sample_time)}</td>
+          <td>${item.suhu}</td>
+          <td>${item.kelembaban}</td>
+          <td>${item.ph !== undefined ? item.ph : "-"}</td>
+          <td>${item.air !== undefined ? item.air + " cm" : "-"}</td>
+        `;
             tbody.appendChild(tr);
           });
         } catch (error) {
@@ -162,13 +163,8 @@
         }
       }
 
-      // Load data pertama kali
       loadData();
-
-      // Refresh tiap 5 detik
       setInterval(loadData, 5000);
-
-      // (Optional) Bisa juga buat fitur search di #search-log, nanti aku bantu kalau mau
     </script>
   </body>
 </html>
