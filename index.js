@@ -1,45 +1,17 @@
 const express = require("express");
-const AWS = require("aws-sdk");
-
 const app = express();
-const port = 3000;
 
-// Konfigurasi AWS menggunakan environment variable
-AWS.config.update({
-  region: process.env.AWS_REGION,
+app.use(express.json()); // supaya bisa baca JSON body
+
+app.post("/iot-data", (req, res) => {
+  console.log("Menerima data dari Lambda:", req.body);
+
+  // Di sini kamu bisa simpan ke database lokal, atau proses data lain
+  // Untuk contoh, kita cuma balas sukses
+  res.json({ message: "Data diterima dengan sukses oleh Express.js" });
 });
 
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
-
-app.get("/", (req, res) => {
-  res.send("Server Express jalan!");
-});
-
-app.get("/whoami", async (req, res) => {
-  const sts = new AWS.STS();
-  try {
-    const identity = await sts.getCallerIdentity().promise();
-    res.json(identity);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/data", async (req, res) => {
-  try {
-    const result = await dynamoDB
-      .scan({
-        TableName: "Capstone", // Ganti dengan nama tabel kamu
-      })
-      .promise();
-
-    res.json(result.Items);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server Express jalan di port ${PORT}`);
 });
