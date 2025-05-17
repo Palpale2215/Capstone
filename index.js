@@ -19,7 +19,7 @@ app.get("/data", async (req, res) => {
   try {
     const result = await dynamoDB
       .scan({
-        TableName: Capstone, // Ganti dengan nama tabel kamu
+        TableName: "Capstone", // Ganti dengan nama tabel kamu
       })
       .promise();
 
