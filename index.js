@@ -15,6 +15,16 @@ app.get("/", (req, res) => {
   res.send("Server Express jalan!");
 });
 
+app.get("/whoami", async (req, res) => {
+  const sts = new AWS.STS();
+  try {
+    const identity = await sts.getCallerIdentity().promise();
+    res.json(identity);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/data", async (req, res) => {
   try {
     const result = await dynamoDB
