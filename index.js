@@ -1,30 +1,38 @@
 const express = require("express");
-const axios = require("axios");
+const axios = require("axios"); // pastikan sudah install: npm install axios
 
 const app = express();
 app.use(express.json());
 
-// Ganti URL ini dengan endpoint API Gateway Lambda-mu
-const API_GATEWAY_URL =
-  "https://2k1z57w6ak.execute-api.us-east-1.amazonaws.com/capstone/data";
+const LAMBDA_API_URL =
+  "https://2k1z57w6ak.execute-api.us-east-1.amazonaws.com/capstone";
 
+// Menerima data dari Lambda (via POST)
 app.post("/iot-data", (req, res) => {
-  console.log("Menerima data dari Lambda:", req.body);
-  // Simpan lokal atau proses lain jika perlu
-  res.json({ message: "Data diterima dengan sukses oleh Express.js" });
+  console.log("📥 Data diterima dari Lambda:", req.body);
+
+  // Bisa disimpan ke database lokal, atau hanya logging
+  res.json({ message: "✅ Data diterima oleh Express.js" });
 });
 
+// Mengambil data dari Lambda (via API Gateway GET request)
 app.get("/data", async (req, res) => {
   try {
-    const response = await axios.get(API_GATEWAY_URL);
+    const response = await axios.post(LAMBDA_API_URL, {
+      action: "get",
+    });
+
     res.json(response.data);
-  } catch (err) {
-    console.error("Error ambil data dari Lambda:", err);
-    res.status(500).json({ error: "Gagal ambil data", err: err.message });
+  } catch (error) {
+    console.error("❌ Gagal ambil data dari Lambda:", error.message);
+    res.status(500).json({
+      error: "Gagal ambil data dari Lambda",
+      detail: error.message,
+    });
   }
 });
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server Express berjalan di port ${PORT}`);
+  console.log(`🚀 Express.js berjalan di http://localhost:${PORT}`);
 });
