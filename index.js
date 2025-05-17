@@ -1,5 +1,6 @@
 const express = require("express");
 const AWS = require("aws-sdk");
+const e = require("express");
 
 const app = express();
 app.use(express.json()); // supaya bisa baca JSON body
@@ -31,7 +32,7 @@ app.get("/data", async (req, res) => {
     res.json(result.Items);
   } catch (err) {
     console.error("Error baca data dari DynamoDB:", err);
-    res.status(500).json({ error: "Gagal ambil data" });
+    res.status(500).json({ error: "Gagal ambil data", err });
   }
 });
 
