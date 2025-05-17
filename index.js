@@ -10,9 +10,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 // Konfigurasi AWS SDK dengan env variables, termasuk session token
 AWS.config.update({
-  accessKeyId:
-    process.env.AWS_ACCESS_KEY_ID ||
-    process.env.AWS_ACCESS_KEY_ID.aws_access_key_id,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.aws_access_key_id,
   secretAccessKey:
     process.env.AWS_SECRET_ACCESS_KEY || process.env.aws_secret_access_key,
   sessionToken: process.env.AWS_SESSION_TOKEN || process.env.aws_session_token,
