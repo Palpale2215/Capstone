@@ -1,38 +1,33 @@
+require("dotenv").config();
 const express = require("express");
-const axios = require("axios"); // pastikan sudah install: npm install axios
+const AWS = require("aws-sdk");
 
 const app = express();
 app.use(express.json());
 
-const LAMBDA_API_URL =
-  "https://2k1z57w6ak.execute-api.us-east-1.amazonaws.com/capstone";
-
-// Menerima data dari Lambda (via POST)
-app.post("/iot-data", (req, res) => {
-  console.log("📥 Data diterima dari Lambda:", req.body);
-
-  // Bisa disimpan ke database lokal, atau hanya logging
-  res.json({ message: "✅ Data diterima oleh Express.js" });
+// Konfigurasi AWS SDK dengan env variables, termasuk session token
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  sessionToken: process.env.AWS_SESSION_TOKEN, // wajib kalau pakai session token
+  region: process.env.AWS_REGION || "us-east-1",
 });
 
-// Mengambil data dari Lambda (via API Gateway GET request)
+const dynamodb = new AWS.DynamoDB.DocumentClient();
+const TABLE_NAME = "Capstone";
+
 app.get("/data", async (req, res) => {
   try {
-    const response = await axios.post(LAMBDA_API_URL, {
-      action: "get",
-    });
-
-    res.json(response.data);
-  } catch (error) {
-    console.error("❌ Gagal ambil data dari Lambda:", error.message);
-    res.status(500).json({
-      error: "Gagal ambil data dari Lambda",
-      detail: error.message,
-    });
+    const params = { TableName: TABLE_NAME, Limit: 20 };
+    const result = await dynamodb.scan(params).promise();
+    res.json(result.Items);
+  } catch (err) {
+    console.error("Error baca data dari DynamoDB:", err);
+    res.status(500).json({ error: "Gagal ambil data", detail: err.message });
   }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Express.js berjalan di http://localhost:${PORT}`);
+  console.log(`Server berjalan di port ${PORT}`);
 });
