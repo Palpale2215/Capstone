@@ -124,37 +124,47 @@
 
           if (!Array.isArray(data) || data.length === 0) return;
 
-          // Urutkan berdasarkan sample_time secara descending (terbaru di atas)
+          // Urutkan berdasarkan sample_time secara descending
           data.sort((a, b) => b.sample_time - a.sample_time);
 
-          // Ambil data terbaru (sekarang sudah paling atas setelah sorting)
+          // Data terbaru
           const latest = data[0];
 
           // Update tampilan utama
           document.getElementById("suhu").textContent = latest.suhu + " °C";
+
+          const kelembapanValue =
+            latest.kelembapan ?? latest.kelembaban ?? "--";
           document.getElementById("kelembaban").textContent =
-            latest.kelembaban + " %";
+            kelembapanValue + " %";
+
           document.getElementById("ph").textContent =
             latest.ph !== undefined ? latest.ph : "--";
-          document.getElementById("air").textContent =
-            latest.air !== undefined ? latest.air + " cm" : "--";
 
-          // Tampilkan alert jika suhu lebih dari 30
+          const airValue =
+            latest.jarak !== undefined ? latest.jarak + " cm" : "--";
+          document.getElementById("air").textContent = airValue;
+
+          // Alert suhu lebih dari 30
           document.getElementById("alertBox").style.display =
             latest.suhu > 30 ? "block" : "none";
 
-          // Isi tabel log
+          // Tabel log
           const tbody = document.getElementById("log-table");
           tbody.innerHTML = "";
 
           data.forEach((item) => {
+            const kelembapan = item.kelembapan ?? item.kelembaban ?? "-";
+            const air = item.jarak !== undefined ? item.jarak + " cm" : "-";
+            const ph = item.ph !== undefined ? item.ph : "-";
+
             const tr = document.createElement("tr");
             tr.innerHTML = `
           <td>${formatDate(item.sample_time)}</td>
           <td>${item.suhu}</td>
-          <td>${item.kelembaban}</td>
-          <td>${item.ph !== undefined ? item.ph : "-"}</td>
-          <td>${item.air !== undefined ? item.air + " cm" : "-"}</td>
+          <td>${kelembapan}</td>
+          <td>${ph}</td>
+          <td>${air}</td>
         `;
             tbody.appendChild(tr);
           });
