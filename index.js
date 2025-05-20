@@ -31,17 +31,6 @@ app.get("/data", async (req, res) => {
   }
 });
 
-pp.get("/iot-data", async (req, res) => {
-  try {
-    const params = { TableName: TABLE_NAME, Limit: 20 };
-    const result = await dynamodb.scan(params).promise();
-    res.json(result.Items);
-  } catch (err) {
-    console.error("Error baca data dari DynamoDB:", err);
-    res.status(500).json({ error: "Gagal ambil data", detail: err.message });
-  }
-});
-
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
